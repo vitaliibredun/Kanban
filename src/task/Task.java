@@ -3,15 +3,15 @@ package task;
 import constants.Status;
 
 public class Task {
-    protected int id;
-    protected String name;
-    protected Status status;
-    protected String description;
+    private int id;
+    private String name;
+    private String description;
+    private Status status;
 
-    public Task(String name, Status status, String description) {
+    public Task(String name, String description, Status status) {
         this.name = name;
-        this.status = status;
         this.description = description;
+        this.status = status;
     }
 
     public int getId() {
