@@ -1,18 +1,16 @@
 package manager;
-
 import constants.Status;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
-
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager{
     private Map<Integer, Task> tasks = new HashMap<>();
     private Map<Integer, SubTask> subtasks = new HashMap<>();
     private Map<Integer, Epic> epics = new HashMap<>();
+    private HistoryManager historyManager = Managers.getDefaultHistory();
     private int generator = 0;
-
 
     @Override
     public void addTask(Task task) {
@@ -61,16 +59,19 @@ public class InMemoryTaskManager implements TaskManager{
 
     @Override
     public Task getTask(int taskId) {
+        historyManager.add(tasks.get(taskId));
         return tasks.get(taskId);
     }
 
     @Override
     public Epic getEpic(int epicId) {
+        historyManager.add(epics.get(epicId));
         return epics.get(epicId);
     }
 
     @Override
     public SubTask getSubtask(int subtaskId) {
+        historyManager.add(subtasks.get(subtaskId));
         return subtasks.get(subtaskId);
     }
 

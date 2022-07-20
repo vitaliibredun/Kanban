@@ -1,10 +1,8 @@
 package manager;
-
 import constants.Status;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
-
 import java.util.List;
 
 public interface TaskManager {
