@@ -8,25 +8,46 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        TaskManager manager = Managers.getDefault();
+        // test 1
+        compareAddAndReturnTasks();
 
+        // test 2
+        compareAddAndReturnSumTasks();
+    }
+
+    private static void compareAddAndReturnTasks() {
+        HistoryManager manager = new InMemoryHistoryManager();
 
         Task task = new Task("some task name", "some task description", Status.NEW);
-        manager.addTask(task);
+        manager.add(task);
 
         Epic epic = new Epic("some epic name", "some epic description");
-        manager.addEpic(epic);
+        manager.add(epic);
 
         SubTask subTask = new SubTask("some subtask name", "some subtask description", Status.NEW, epic.getId());
-        manager.addSubtask(subTask);
+        manager.add(subTask);
 
-        manager.getTask(0);
-        manager.getEpic(1);
-        manager.getSubtask(2);
+        List<Task> history = manager.getHistory();
 
-        List<Task> history = historyManager.getHistory();
+        System.out.println(task.equals(history.get(0)));
+        System.out.println(epic.equals(history.get(1)));
+        System.out.println(subTask.equals(history.get(2)));
+    }
 
-        System.out.println(history);
+    private static void compareAddAndReturnSumTasks() {
+        HistoryManager manager = new InMemoryHistoryManager();
+
+        Task task = new Task("some task name", "some task description", Status.NEW);
+        manager.add(task);
+
+        Epic epic = new Epic("some epic name", "some epic description");
+        manager.add(epic);
+
+        SubTask subTask = new SubTask("some subtask name", "some subtask description", Status.NEW, epic.getId());
+        manager.add(subTask);
+
+        List<Task> history = manager.getHistory();
+
+        System.out.println(history.size() == 3);
     }
 }
