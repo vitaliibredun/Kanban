@@ -8,46 +8,34 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        // test 1
-        compareAddAndReturnTasks();
-
-        // test 2
-        compareAddAndReturnSumTasks();
+        // test
+        testing();
     }
 
-    private static void compareAddAndReturnTasks() {
+    private static void testing() {
         HistoryManager manager = new InMemoryHistoryManager();
 
-        Task task = new Task("some task name", "some task description", Status.NEW);
-        manager.add(task);
+        Epic epic1 = new Epic("epic 1", "some description");
+        manager.add(epic1);
 
-        Epic epic = new Epic("some epic name", "some epic description");
-        manager.add(epic);
+        SubTask subTask1 = new SubTask("subtask 1", "some description", Status.NEW, epic1.getId());
+        SubTask subTask2 = new SubTask("some subtask 2", "some description", Status.NEW, epic1.getId());
+        SubTask subTask3 = new SubTask("some subtask 3", "some description", Status.NEW, epic1.getId());
+        manager.add(subTask1);
+        manager.add(subTask2);
+        manager.add(subTask3);
 
-        SubTask subTask = new SubTask("some subtask name", "some subtask description", Status.NEW, epic.getId());
-        manager.add(subTask);
+        Epic epic2 = new Epic("epic 2", "some description");
+        manager.add(epic2);
 
         List<Task> history = manager.getHistory();
 
-        System.out.println(task.equals(history.get(0)));
-        System.out.println(epic.equals(history.get(1)));
-        System.out.println(subTask.equals(history.get(2)));
-    }
+        System.out.println(epic1.equals(history.get(0)));
+        System.out.println(subTask1.equals(history.get(1)));
+        System.out.println(subTask2.equals(history.get(2)));
+        System.out.println(subTask3.equals(history.get(3)));
+        System.out.println(epic2.equals(history.get(4)));
 
-    private static void compareAddAndReturnSumTasks() {
-        HistoryManager manager = new InMemoryHistoryManager();
-
-        Task task = new Task("some task name", "some task description", Status.NEW);
-        manager.add(task);
-
-        Epic epic = new Epic("some epic name", "some epic description");
-        manager.add(epic);
-
-        SubTask subTask = new SubTask("some subtask name", "some subtask description", Status.NEW, epic.getId());
-        manager.add(subTask);
-
-        List<Task> history = manager.getHistory();
-
-        System.out.println(history.size() == 3);
+        System.out.println(history.size() == 5);
     }
 }
