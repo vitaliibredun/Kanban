@@ -9,7 +9,6 @@ public class SubTask extends Task {
         this.epicId = epicId;
     }
 
-    // new constructor
     public SubTask(int id, String name, String description, Status status, int epicId) {
         super(id, name, description, status);
         this.epicId = epicId;

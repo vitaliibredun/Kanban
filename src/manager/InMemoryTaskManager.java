@@ -6,11 +6,11 @@ import tasks.Task;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager{
-    protected Map<Integer, Task> tasks = new HashMap<>();
-    protected Map<Integer, SubTask> subtasks = new HashMap<>();
-    protected Map<Integer, Epic> epics = new HashMap<>();
+    protected static Map<Integer, Task> tasks = new HashMap<>();
+    protected static Map<Integer, SubTask> subtasks = new HashMap<>();
+    protected static Map<Integer, Epic> epics = new HashMap<>();
     public static HistoryManager historyManager = Managers.getInMemoryHistoryManager();
-    protected int generator = 0;
+    public int generator = 0;
 
     @Override
     public void addTask(Task task) {

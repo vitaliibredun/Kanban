@@ -7,32 +7,35 @@ import tasks.Task;
 import tasks.TaskType;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 
 public class FileBackedTasksManager
         extends InMemoryTaskManager implements TaskManager {
     private final File file;
     public static TaskManager taskManager = Managers.getInMemoryTaskManager();
+
     public FileBackedTasksManager(File file) {
         this.file = file;
     }
 
 
     private void save() {
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))) {
-
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
             bufferedWriter.write("id,type,name,status,description,epic by subtask");
             bufferedWriter.newLine();
 
-            tasksToFile(bufferedWriter, TaskManager.tasks);
-            tasksToFile(bufferedWriter, TaskManager.epics);
+            tasksToFile(bufferedWriter, tasks);
+            tasksToFile(bufferedWriter, epics);
 
             // к сожалению не придумал как сделать 1 метод под все типы задач
-            for (SubTask value : TaskManager.subtasks.values()) {
+            for (SubTask value : subtasks.values()) {
                 bufferedWriter.write(String.format("%s,%s,%s,%s,%s,%s",
                         value.getId(), value.getTaskType(), value.getName(), value.getStatus(),
                         value.getDescription(), value.getEpicId()));
@@ -45,7 +48,8 @@ public class FileBackedTasksManager
         }
     }
 
-    private <T extends Task> void tasksToFile(BufferedWriter bufferedWriter, Map<Integer, T> tasks) throws IOException {
+    private <T extends Task> void tasksToFile(BufferedWriter bufferedWriter,
+                                              Map<Integer, T> tasks) throws IOException {
         for (T value : tasks.values()) {
             bufferedWriter.write(String.format("%s,%s,%s,%s,%s",
                     value.getId(), value.getTaskType(), value.getName(),
@@ -68,15 +72,14 @@ public class FileBackedTasksManager
         }
     }
 
-
     public static FileBackedTasksManager loadFromFile(File file) {
         final FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
 
         try {
             String stringFromFile = Files.readString(file.toPath());
 
-            List<Task> tasks = parseTasksFromCSV(stringFromFile);
-            for (Task task : tasks) {
+            List<Task> listOfTasks = parseTasksFromCSV(stringFromFile);
+            for (Task task : listOfTasks) {
                 switch (task.getTaskType()) {
                     case TASK -> taskManager.addTask(task);
                     case EPIC -> taskManager.addEpic((Epic) task);
@@ -86,17 +89,14 @@ public class FileBackedTasksManager
 
             List<Integer> listOfIDs = parseTaskHistoryFromCSV(stringFromFile);
             for (Integer listOfID : listOfIDs) {
-                if (taskManager.tasks.containsKey(listOfID)) {
+                if (tasks.containsKey(listOfID)) {
                     taskManager.getTask(listOfID);
-                } else if (taskManager.epics.containsKey(listOfID)) {
+                } else if (epics.containsKey(listOfID)) {
                     taskManager.getEpic(listOfID);
-                } else if (taskManager.subtasks.containsKey(listOfID)) {
+                } else if (subtasks.containsKey(listOfID)) {
                     taskManager.getSubtask(listOfID);
                 }
             }
-
-
-
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка чтения");
         }
@@ -270,15 +270,15 @@ public class FileBackedTasksManager
         return status;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Test 1 - write data to file
-//        writeToFileTest();
+        writeToFileTest();
 
         // Test 2 - read data from file
-        readFromFileTest();
+//        readFromFileTest();
     }
 
-    private static void writeToFileTest() {
+    private static void writeToFileTest() throws IOException {
         TaskManager manager = Managers.getFileBackedTaskManager();
 
         Task task1 = new Task("task 1", "description by task 1", Status.NEW);
@@ -300,27 +300,41 @@ public class FileBackedTasksManager
         manager.getSubtask(subTask1.getId());
         manager.getSubtask(subTask2.getId());
         manager.getTask(task1.getId());
+
+        String string = Files.readString(Path.of("resources/tasksHistory.csv"));
+
+        System.out.println(string.isEmpty());
     }
 
     private static void readFromFileTest() {
         loadFromFile(new File("resources/tasksHistory.csv"));
 
-        Task task1 = taskManager.getTask(0);
-        Task epic2 = taskManager.getEpic(2);
-        Task subtask1 = taskManager.getSubtask(3);
+        boolean volumeOfTasks = tasks.size() == 1;
+        System.out.println(volumeOfTasks);
 
-//        System.out.println(task1);
-//        System.out.println(epic2);
-//        System.out.println(subtask1);
+        boolean volumeOfEpics = epics.size() == 2;
+        System.out.println(volumeOfTasks);
 
+        boolean volumeOfSubtasks = subtasks.size() == 2;
+        System.out.println(volumeOfTasks);
 
-        List<Task> history = historyManager.getHistory();
-
-//        List<Task> history = inMemoryHistoryManager.getHistory();
-        for (Task task : history) {
-            System.out.println(task);
+        for (Task task : tasks.values()) {
+            System.out.printf("%s\n", task);
         }
 
+        for (Epic epic : epics.values()) {
+            System.out.printf("%s\n", epic);
+        }
 
+        for (SubTask subtask : subtasks.values()) {
+            System.out.printf("%s\n", subtask);
+        }
+
+        List<Task> history = historyManager.getHistory();
+        System.out.println(history.size() == 5);
+
+        for (Task taskFromHistory : history) {
+            System.out.printf("%s\n", taskFromHistory);
+        }
     }
 }

@@ -10,10 +10,8 @@ public class Epic extends Task {
         super(name, description, Status.NEW);
     }
 
-    // new constructor
     public Epic(int id, String name, String description, Status status) {
         super(id, name, description, status);
-        this.subTasksId = subTasksId;
     }
 
     public void addSubtaskId(int subTaskId) {
