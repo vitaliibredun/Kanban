@@ -19,7 +19,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public List<Object> getHistory() {
+    public List<Task> getHistory() {
         return customLinkedList.getTasks();
     }
 
@@ -58,35 +58,13 @@ public class InMemoryHistoryManager implements HistoryManager {
             nodesMap.remove(node.task);
         }
 
-        public List<Object> getTasks() {
-            List<Object> list = new ArrayList<>();
+        public List<T> getTasks() {
+            List<T> list = new ArrayList<>();
 
             for (Node<T> i = head; i != null; i = i.next) {
                 list.add(i.task);
             }
             return list;
         }
-
-        private static class Node<T> {
-            T task;
-            Node<T> prev;
-            Node<T> next;
-
-            public Node(T task, Node<T> prev, Node<T> next) {
-                this.task = task;
-                this.prev = prev;
-                this.next = next;
-            }
-
-            @Override
-            public String toString() {
-                return "Node{" +
-                        "task=" + task +
-                        ", prev=" + (prev != null ? prev.task : null) +
-                        ", next=" + (next != null ? next.task : null) +
-                        '}';
-            }
-        }
-
     }
 }

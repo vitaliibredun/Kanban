@@ -10,11 +10,21 @@ public class Epic extends Task {
         super(name, description, Status.NEW);
     }
 
+    // new constructor
+    public Epic(int id, String name, String description, Status status) {
+        super(id, name, description, status);
+        this.subTasksId = subTasksId;
+    }
+
     public void addSubtaskId(int subTaskId) {
         subTasksId.add(subTaskId);
     }
 
     public List<Integer> getSubTasksId() {
         return subTasksId;
+    }
+
+    public TaskType getTaskType() {
+        return TaskType.EPIC;
     }
 }
