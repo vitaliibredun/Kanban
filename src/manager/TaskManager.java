@@ -3,20 +3,26 @@ import constants.Status;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface TaskManager {
+    Map<Integer, Task> tasks = new HashMap<>();
+    Map<Integer, SubTask> subtasks = new HashMap<>();
+    Map<Integer, Epic> epics = new HashMap<>();
     void addTask(Task task);
 
     void addEpic(Epic epic);
 
     void addSubtask(SubTask subTask);
 
-    List<Task> getTasks();
+    List<Task> getAllTasks();
 
-    List<Epic> getEpics();
+    List<Epic> getALLEpics();
 
-    List<SubTask> getSubtasks();
+    List<SubTask> getALLSubtasks();
 
     Task getTask(int taskId);
 
