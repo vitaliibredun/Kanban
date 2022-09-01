@@ -1,13 +1,13 @@
 package manager;
 
 import constants.Status;
+import exceptions.ManagerSaveException;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
 import tasks.TaskType;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,15 +33,9 @@ public class FileBackedTasksManager
 
             tasksToFile(bufferedWriter, tasks);
             tasksToFile(bufferedWriter, epics);
-
-            // к сожалению не придумал как сделать 1 метод под все типы задач
-            for (SubTask value : subtasks.values()) {
-                bufferedWriter.write(String.format("%s,%s,%s,%s,%s,%s",
-                        value.getId(), value.getTaskType(), value.getName(), value.getStatus(),
-                        value.getDescription(), value.getEpicId()));
-                bufferedWriter.newLine();
-            }
+            tasksToFile(bufferedWriter, subtasks);
             bufferedWriter.newLine();
+
             historyOfTasksToFile(bufferedWriter, historyManager);
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка записи");
@@ -51,9 +45,7 @@ public class FileBackedTasksManager
     private <T extends Task> void tasksToFile(BufferedWriter bufferedWriter,
                                               Map<Integer, T> tasks) throws IOException {
         for (T value : tasks.values()) {
-            bufferedWriter.write(String.format("%s,%s,%s,%s,%s",
-                    value.getId(), value.getTaskType(), value.getName(),
-                    value.getStatus(), value.getDescription()));
+            bufferedWriter.write(value.toString());
             bufferedWriter.newLine();
         }
     }
@@ -63,12 +55,6 @@ public class FileBackedTasksManager
         List<Task> history = historyManager.getHistory();
         for (Task task : history) {
             bufferedWriter.write(String.format("%s,", task.getId()));
-        }
-    }
-
-    static class ManagerSaveException extends RuntimeException {
-        public ManagerSaveException(final String message) {
-            super(message);
         }
     }
 
@@ -275,7 +261,7 @@ public class FileBackedTasksManager
         writeToFileTest();
 
         // Test 2 - read data from file
-//        readFromFileTest();
+        readFromFileTest();
     }
 
     private static void writeToFileTest() throws IOException {
@@ -313,10 +299,10 @@ public class FileBackedTasksManager
         System.out.println(volumeOfTasks);
 
         boolean volumeOfEpics = epics.size() == 2;
-        System.out.println(volumeOfTasks);
+        System.out.println(volumeOfEpics);
 
         boolean volumeOfSubtasks = subtasks.size() == 2;
-        System.out.println(volumeOfTasks);
+        System.out.println(volumeOfSubtasks);
 
         for (Task task : tasks.values()) {
             System.out.printf("%s\n", task);
@@ -331,7 +317,7 @@ public class FileBackedTasksManager
         }
 
         List<Task> history = historyManager.getHistory();
-        System.out.println(history.size() == 5);
+        System.out.println(history.size() == 9);
 
         for (Task taskFromHistory : history) {
             System.out.printf("%s\n", taskFromHistory);

@@ -25,4 +25,12 @@ public class SubTask extends Task {
     public TaskType getTaskType() {
         return TaskType.SUBTASK;
     }
+
+    @Override
+    public String toString() {
+        String format = String.format("%s,%s,%s,%s,%s,%s",
+                getId(), getTaskType(), getName(), getStatus(),
+                getDescription(), getEpicId());
+        return format;
+    }
 }

@@ -2,10 +2,10 @@ package tasks;
 import constants.Status;
 
 public class Task {
-    private int id;
-    private String name;
-    private String description;
-    private Status status;
+    protected int id;
+    protected String name;
+    protected String description;
+    protected Status status;
 
     public Task(int id, String name, String description, Status status) {
         this.id = id;
@@ -58,11 +58,9 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", status=" + status +
-                ", description='" + description + '\'' +
-                '}';
+        String format = String.format("%s,%s,%s,%s,%s",
+                getId(), getTaskType(), getName(),
+                getStatus(), getDescription());
+        return format;
     }
 }
