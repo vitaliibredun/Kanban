@@ -1,14 +1,20 @@
 package manager;
+
 import constants.Status;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
+
 
 public class InMemoryTaskManager implements TaskManager{
     protected static Map<Integer, Task> tasks = new HashMap<>();
     protected static Map<Integer, SubTask> subtasks = new HashMap<>();
     protected static Map<Integer, Epic> epics = new HashMap<>();
+    protected Set<Task> prioritizedTasks = new TreeSet<>(new ComparatorToInMemoryTaskManager());
     public static HistoryManager historyManager = Managers.getInMemoryHistoryManager();
     public int generator = 0;
 
@@ -17,6 +23,8 @@ public class InMemoryTaskManager implements TaskManager{
         int taskId = generator++;
         task.setId(taskId);
         tasks.put(taskId, task);
+        checkCrossDateAndTimeTasks(task);
+        prioritizedTasks.add(task);
     }
 
     @Override
@@ -25,6 +33,8 @@ public class InMemoryTaskManager implements TaskManager{
         epic.setId(epicId);
         epics.put(epicId, epic);
         updateEpicStatus(epic);
+        checkCrossDateAndTimeTasks(epic);
+        prioritizedTasks.add(epic);
     }
 
     @Override
@@ -39,7 +49,11 @@ public class InMemoryTaskManager implements TaskManager{
         subtasks.put(subtaskId, subTask);
         epic.addSubtaskId(subtaskId);
         epic.setStatus(updateEpicStatus(epic));
-        epics.put(epicId, epic);
+
+        updateEpicDurationAndStartTime(epic);
+
+        checkCrossDateAndTimeTasks(subTask);
+        prioritizedTasks.add(subTask);
     }
 
     @Override
@@ -62,7 +76,6 @@ public class InMemoryTaskManager implements TaskManager{
 
     @Override
     public Task getTask(int taskId) {
-        //historyManager.add(tasks.get(taskId));
         Task task = tasks.get(taskId);
         historyManager.add(task);
         return tasks.get(taskId);
@@ -70,13 +83,15 @@ public class InMemoryTaskManager implements TaskManager{
 
     @Override
     public Epic getEpic(int epicId) {
-        historyManager.add(epics.get(epicId));
+        Epic epic = epics.get(epicId);
+        historyManager.add(epic);
         return epics.get(epicId);
     }
 
     @Override
     public SubTask getSubtask(int subtaskId) {
-        historyManager.add(subtasks.get(subtaskId));
+        SubTask subTask = subtasks.get(subtaskId);
+        historyManager.add(subTask);
         return subtasks.get(subtaskId);
     }
 
@@ -94,6 +109,10 @@ public class InMemoryTaskManager implements TaskManager{
     @Override
     public void deleteAllSubtasks() {
         subtasks.clear();
+    }
+    @Override
+    public Set<Task> getPrioritizedTasks() {
+        return prioritizedTasks;
     }
 
     @Override
@@ -122,16 +141,19 @@ public class InMemoryTaskManager implements TaskManager{
 
     @Override
     public void updateTask(Task task) {
+        checkCrossDateAndTimeTasks(task);
         tasks.put(task.getId(), task);
     }
 
     @Override
     public void updateEpic(Epic epic) {
+        checkCrossDateAndTimeTasks(epic);
         epics.put(epic.getId(), epic);
     }
 
     @Override
     public void updateSubtask(SubTask subTask) {
+        checkCrossDateAndTimeTasks(subTask);
         subtasks.put(subTask.getId(), subTask);
         Epic epic = epics.get(subTask.getEpicId());
         epic.setStatus(updateEpicStatus(epic));
@@ -140,8 +162,14 @@ public class InMemoryTaskManager implements TaskManager{
 
     @Override
     public List<SubTask> getSubtasksByEpic(int epicId) {
-        Epic epic = epics.get(epicId);
-        return (List<SubTask>) epic;
+        List<SubTask> subTaskList = new ArrayList<>();
+
+        for (SubTask subTask : subtasks.values()) {
+            if (subTask.getEpicId() == epicId) {
+                subTaskList.add(subTask);
+            }
+        }
+        return subTaskList;
     }
 
     @Override
@@ -161,5 +189,54 @@ public class InMemoryTaskManager implements TaskManager{
             }
         }
         return Status.IN_PROGRESS;
+    }
+
+    @Override
+    public void updateEpicDurationAndStartTime(Epic epic) {
+        List<SubTask> subtasksByEpic = getSubtasksByEpic(epic.getId());
+        for (SubTask subTask : subtasksByEpic) {
+            if (subTask.getStartTime() == null) {
+                return;
+            }
+        }
+        if (!subtasksByEpic.isEmpty()) {
+            LocalDateTime minStartTime = subtasksByEpic.stream()
+                    .map(SubTask::getStartTime).min(LocalDateTime::compareTo).get();
+
+            epic.setEpicStartTime(minStartTime);
+
+            LocalDateTime maxEndTime = subtasksByEpic.stream()
+                    .map(SubTask::getEndTime).max(LocalDateTime::compareTo).get();
+
+            epic.setEpicEndTime(maxEndTime);
+
+            epic.setEpicDuration(Duration.between(minStartTime, maxEndTime));
+        }
+        if (subtasksByEpic.isEmpty()) {
+            epic.setEpicDuration(null);
+            epic.setEpicStartTime(null);
+            epic.setEpicEndTime(null);
+        }
+    }
+
+    @Override
+    public void checkCrossDateAndTimeTasks(Task task) {
+        LocalDateTime startTime = task.getStartTime();
+
+        if (startTime == null) {
+            return;
+        }
+        Set<Task> tasksFromPrioritizedSet = getPrioritizedTasks();
+        for (Task prioritizedTask : tasksFromPrioritizedSet) {
+            if (prioritizedTask.getStartTime() == null) {
+                return;
+            }
+            boolean firstValidateCross = task.getStartTime().isEqual(prioritizedTask.getStartTime());
+            boolean secondValidateCross = task.getEndTime().isEqual(prioritizedTask.getEndTime());
+            if (firstValidateCross && secondValidateCross) {
+                System.out.println("На заданное время уже есть задача");
+                break;
+            }
+        }
     }
 }

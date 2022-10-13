@@ -1,11 +1,21 @@
 package tasks;
-import constants.Status;
+import constants.*;
 
 public class SubTask extends Task {
     private int epicId;
 
+    public SubTask(String name, String description, Status status, Integer duration, String startTimeOfTask, int epicId) {
+        super(name, description, status, duration, startTimeOfTask);
+        this.epicId = epicId;
+    }
+
     public SubTask(String name, String description, Status status, int epicId) {
         super(name, description, status);
+        this.epicId = epicId;
+    }
+
+    public SubTask(int id, String name, String description, Status status, Integer duration, String startTimeOfTask, int epicId) {
+        super(id, name, description, status, duration, startTimeOfTask);
         this.epicId = epicId;
     }
 
@@ -28,9 +38,8 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        String format = String.format("%s,%s,%s,%s,%s,%s",
+        return String.format("%s,%s,%s,%s,%s,%s,%s,%s",
                 getId(), getTaskType(), getName(), getStatus(),
-                getDescription(), getEpicId());
-        return format;
+                getDescription(), duration, getStartTime(), getEpicId());
     }
 }

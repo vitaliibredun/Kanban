@@ -13,6 +13,6 @@ public class Managers {
     }
 
     public static TaskManager getFileBackedTaskManager() {
-        return new FileBackedTasksManager(new File("resources/tasksHistory.csv"));
+        return new FileBackedTasksManager(new File("src/main/resources/tasksHistory.csv"));
     }
 }

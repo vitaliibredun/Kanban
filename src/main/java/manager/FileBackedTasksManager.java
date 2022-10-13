@@ -7,10 +7,12 @@ import tasks.SubTask;
 import tasks.Task;
 import tasks.TaskType;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,15 +22,13 @@ public class FileBackedTasksManager
         extends InMemoryTaskManager implements TaskManager {
     private final File file;
     public static TaskManager taskManager = Managers.getInMemoryTaskManager();
-
     public FileBackedTasksManager(File file) {
         this.file = file;
     }
 
-
-    private void save() {
+    public void save() {
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
-            bufferedWriter.write("id,type,name,status,description,epic by subtask");
+            bufferedWriter.write("id,type,name,status,description,duration,startTime,epic by subtask");
             bufferedWriter.newLine();
 
             tasksToFile(bufferedWriter, tasks);
@@ -89,33 +89,48 @@ public class FileBackedTasksManager
         return fileBackedTasksManager;
     }
 
-    public static List<Task> parseTasksFromCSV(String value) {
+    private static List<Task> parseTasksFromCSV(String value) {
         List<Task> tasks = new ArrayList<>();
         String[] split = value.split("\n");
 
         for (int i = 1; i < split.length - 2; i++) {
             String[] valueFromFile = split[i].split(",");
-            Integer epicBySubtask = null;
 
             int id = Integer.parseInt(valueFromFile[0]);
             TaskType type = TaskType.valueOf(valueFromFile[1]);
             String name = valueFromFile[2];
             Status status = Status.valueOf(valueFromFile[3]);
             String description = valueFromFile[4];
+            Integer duration;
+            if (valueFromFile[5].contains("null")) {
+                duration = null;
+            } else {
+                String volume = valueFromFile[5].substring(2, valueFromFile[5].length() - 1);
+                duration = Integer.valueOf(volume);
+            }
+
+            String startTime;
+            if (valueFromFile[6].contains("null")) {
+                startTime = null;
+            } else {
+                startTime = valueFromFile[6];
+            }
+
+            Integer epicBySubtask = null;
             if (type.equals(TaskType.SUBTASK)) {
-                epicBySubtask = Integer.valueOf(valueFromFile[5]);
+                epicBySubtask = Integer.valueOf(valueFromFile[7]);
             }
 
             switch (type) {
-                case TASK -> tasks.add(new Task(id, name, description, status));
-                case EPIC -> tasks.add(new Epic(id, name, description, status));
-                case SUBTASK -> tasks.add(new SubTask(id, name, description, status, epicBySubtask));
+                case TASK -> tasks.add(new Task(id, name, description, status, duration, startTime));
+                case EPIC -> tasks.add(new Epic(id, name, description, status, duration, startTime));
+                case SUBTASK -> tasks.add(new SubTask(id, name, description, status, duration,startTime, epicBySubtask));
             }
         }
         return tasks;
     }
 
-    public static List<Integer> parseTaskHistoryFromCSV(String value) {
+    private static List<Integer> parseTaskHistoryFromCSV(String value) {
         List<Integer> listOfId = new ArrayList<>();
 
         String[] valuesFromFile = value.split("\n\n");
@@ -254,73 +269,5 @@ public class FileBackedTasksManager
         Status status = super.updateEpicStatus(epic);
         save();
         return status;
-    }
-
-    public static void main(String[] args) throws IOException {
-        // Test 1 - write data to file
-        writeToFileTest();
-
-        // Test 2 - read data from file
-        readFromFileTest();
-    }
-
-    private static void writeToFileTest() throws IOException {
-        TaskManager manager = Managers.getFileBackedTaskManager();
-
-        Task task1 = new Task("task 1", "description by task 1", Status.NEW);
-        manager.addTask(task1);
-
-        Epic epic1 = new Epic("epic 1", "description by epic 1");
-        manager.addEpic(epic1);
-
-        Epic epic2 = new Epic("epic 2", "description by epic 2");
-        manager.addEpic(epic2);
-
-        SubTask subTask1 = new SubTask("subtask 1", "description by subtask 1", Status.DONE, epic2.getId());
-        SubTask subTask2 = new SubTask("subtask 2", "description by subtask 2", Status.DONE, epic2.getId());
-        manager.addSubtask(subTask1);
-        manager.addSubtask(subTask2);
-
-        manager.getEpic(epic1.getId());
-        manager.getEpic(epic2.getId());
-        manager.getSubtask(subTask1.getId());
-        manager.getSubtask(subTask2.getId());
-        manager.getTask(task1.getId());
-
-        String string = Files.readString(Path.of("resources/tasksHistory.csv"));
-
-        System.out.println(string.isEmpty());
-    }
-
-    private static void readFromFileTest() {
-        loadFromFile(new File("resources/tasksHistory.csv"));
-
-        boolean volumeOfTasks = tasks.size() == 1;
-        System.out.println(volumeOfTasks);
-
-        boolean volumeOfEpics = epics.size() == 2;
-        System.out.println(volumeOfEpics);
-
-        boolean volumeOfSubtasks = subtasks.size() == 2;
-        System.out.println(volumeOfSubtasks);
-
-        for (Task task : tasks.values()) {
-            System.out.printf("%s\n", task);
-        }
-
-        for (Epic epic : epics.values()) {
-            System.out.printf("%s\n", epic);
-        }
-
-        for (SubTask subtask : subtasks.values()) {
-            System.out.printf("%s\n", subtask);
-        }
-
-        List<Task> history = historyManager.getHistory();
-        System.out.println(history.size() == 9);
-
-        for (Task taskFromHistory : history) {
-            System.out.printf("%s\n", taskFromHistory);
-        }
     }
 }

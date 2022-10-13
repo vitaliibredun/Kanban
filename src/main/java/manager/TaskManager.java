@@ -1,12 +1,12 @@
 package manager;
-import constants.Status;
+
+import constants.*;
 import tasks.Epic;
 import tasks.SubTask;
 import tasks.Task;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public interface TaskManager {
     void addTask(Task task);
@@ -26,6 +26,8 @@ public interface TaskManager {
     Epic getEpic(int epicId);
 
     SubTask getSubtask(int subtaskId);
+
+    Set<Task> getPrioritizedTasks();
 
     void deleteAllTasks();
 
@@ -48,4 +50,8 @@ public interface TaskManager {
     List<SubTask> getSubtasksByEpic(int epicId);
 
     Status updateEpicStatus(Epic epic);
+
+    void updateEpicDurationAndStartTime(Epic epic);
+
+    void checkCrossDateAndTimeTasks(Task task);
 }
