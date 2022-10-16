@@ -2,15 +2,12 @@ package tasks;
 
 import constants.Status;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Epic extends Task {
     private List<Integer> subTasksId = new ArrayList<>();
-    protected Duration epicDuration;
-    protected LocalDateTime epicStartTime;
     protected LocalDateTime epicEndTime;
 
     public Epic(String name, String description) {
@@ -25,28 +22,8 @@ public class Epic extends Task {
         super(id, name, description, status);
     }
 
-    public void setEpicDuration(Duration epicDuration) {
-        this.epicDuration = epicDuration;
-    }
-
-    public void setEpicStartTime(LocalDateTime epicStartTime) {
-        this.epicStartTime = epicStartTime;
-    }
-
     public void setEpicEndTime(LocalDateTime epicEndTime) {
         this.epicEndTime = epicEndTime;
-    }
-
-    public Duration getEpicDuration() {
-        return epicDuration;
-    }
-
-    public LocalDateTime getEpicStartTime() {
-        return epicStartTime;
-    }
-
-    public LocalDateTime getEpicEndTime() {
-        return epicEndTime;
     }
 
     public void addSubtaskId(int subTaskId) {

@@ -6,7 +6,6 @@ import tasks.SubTask;
 import tasks.Task;
 
 import java.util.List;
-import java.util.Set;
 
 public interface TaskManager {
     void addTask(Task task);
@@ -27,7 +26,7 @@ public interface TaskManager {
 
     SubTask getSubtask(int subtaskId);
 
-    Set<Task> getPrioritizedTasks();
+    List getPrioritizedTasks();
 
     void deleteAllTasks();
 

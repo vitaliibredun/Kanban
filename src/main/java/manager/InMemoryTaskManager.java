@@ -49,9 +49,7 @@ public class InMemoryTaskManager implements TaskManager{
         subtasks.put(subtaskId, subTask);
         epic.addSubtaskId(subtaskId);
         epic.setStatus(updateEpicStatus(epic));
-
         updateEpicDurationAndStartTime(epic);
-
         checkCrossDateAndTimeTasks(subTask);
         prioritizedTasks.add(subTask);
     }
@@ -110,9 +108,10 @@ public class InMemoryTaskManager implements TaskManager{
     public void deleteAllSubtasks() {
         subtasks.clear();
     }
+
     @Override
-    public Set<Task> getPrioritizedTasks() {
-        return prioritizedTasks;
+    public List getPrioritizedTasks() {
+        return new ArrayList<>(prioritizedTasks);
     }
 
     @Override
@@ -203,18 +202,18 @@ public class InMemoryTaskManager implements TaskManager{
             LocalDateTime minStartTime = subtasksByEpic.stream()
                     .map(SubTask::getStartTime).min(LocalDateTime::compareTo).get();
 
-            epic.setEpicStartTime(minStartTime);
+            epic.setStartTime(minStartTime);
 
             LocalDateTime maxEndTime = subtasksByEpic.stream()
                     .map(SubTask::getEndTime).max(LocalDateTime::compareTo).get();
 
             epic.setEpicEndTime(maxEndTime);
 
-            epic.setEpicDuration(Duration.between(minStartTime, maxEndTime));
+            epic.setDuration(Duration.between(minStartTime, maxEndTime));
         }
         if (subtasksByEpic.isEmpty()) {
-            epic.setEpicDuration(null);
-            epic.setEpicStartTime(null);
+            epic.setDuration(null);
+            epic.setStartTime(null);
             epic.setEpicEndTime(null);
         }
     }
@@ -226,8 +225,8 @@ public class InMemoryTaskManager implements TaskManager{
         if (startTime == null) {
             return;
         }
-        Set<Task> tasksFromPrioritizedSet = getPrioritizedTasks();
-        for (Task prioritizedTask : tasksFromPrioritizedSet) {
+
+        for (Task prioritizedTask : prioritizedTasks) {
             if (prioritizedTask.getStartTime() == null) {
                 return;
             }

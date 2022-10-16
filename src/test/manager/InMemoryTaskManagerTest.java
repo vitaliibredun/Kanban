@@ -8,9 +8,7 @@ import tasks.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
@@ -281,8 +279,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         SubTask subtaskTimePoint = new SubTask("subtask 1", "some description", Status.NEW, 15, "11/00/12/09/2022", epicTimePoint.getId());
         taskManager.addSubtask(subtaskTimePoint);
 
-        Set<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
-        ArrayList<Task> tasks = new ArrayList<>(prioritizedTasks);
+        List tasks = taskManager.getPrioritizedTasks();
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(6, taskManager.getPrioritizedTasks().size(), "Неверное количество задач"),
@@ -549,8 +546,8 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         Epic epicTimePoint = new Epic("epic 1", "some description for epic");
         taskManager.addEpic(epicTimePoint);
 
-        Duration epicDurationBeforeAddSubtask = epicTimePoint.getEpicDuration();
-        LocalDateTime epicStartTimeBeforeAddSubtask = epicTimePoint.getEpicStartTime();
+        Duration epicDurationBeforeAddSubtask = epicTimePoint.getDuration();
+        LocalDateTime epicStartTimeBeforeAddSubtask = epicTimePoint.getStartTime();
 
         Assertions.assertAll(
                 () -> Assertions.assertNull(epicDurationBeforeAddSubtask, "Не верное значение duration"),
@@ -560,8 +557,8 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         SubTask subtaskTimePoint = new SubTask("subtask 1", "some description", Status.NEW, 15, "11/00/12/09/2022", epicTimePoint.getId());
         taskManager.addSubtask(subtaskTimePoint);
 
-        Duration epicDurationAfterAddSubtask = epicTimePoint.getEpicDuration();
-        LocalDateTime epicStartTimeAfterAddSubtask = epicTimePoint.getEpicStartTime();
+        Duration epicDurationAfterAddSubtask = epicTimePoint.getDuration();
+        LocalDateTime epicStartTimeAfterAddSubtask = epicTimePoint.getStartTime();
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(expectedDuration,epicDurationAfterAddSubtask, "Не верное значение duration"),
