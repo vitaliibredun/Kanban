@@ -4,7 +4,7 @@ import tasks.Task;
 import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    CustomLinkedList<Task> customLinkedList = new CustomLinkedList<>();
+    private CustomLinkedList<Task> customLinkedList = new CustomLinkedList<>();
 
     @Override
     public void add(Task task) {
@@ -55,7 +55,9 @@ public class InMemoryHistoryManager implements HistoryManager {
                 node.prev.next = node.next;
                 node.next.prev = node.prev;
             }
-            nodesMap.remove(node.task);
+            if (nodesMap.containsValue(node.task)) {
+                nodesMap.values().remove(node.task);
+            }
         }
 
         private List<T> getTasks() {

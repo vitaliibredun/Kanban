@@ -27,7 +27,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         super.initialization();
         fileTest = new File("src/test/testResources/taskHistoryForTest.csv");
         file = new File("src/main/resources/tasksHistory.csv");
-        manager = Managers.getFileBackedTaskManager();
+        manager = Managers.getHttpTaskManager();
         new FileWriter(file,false).close();
     }
 

@@ -21,12 +21,11 @@ import java.util.Map;
 public class FileBackedTasksManager
         extends InMemoryTaskManager implements TaskManager {
     private final File file;
-    public static TaskManager taskManager = Managers.getInMemoryTaskManager();
     public FileBackedTasksManager(File file) {
         this.file = file;
     }
 
-    public void save() {
+    protected  void save() {
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
             bufferedWriter.write("id,type,name,status,description,duration,startTime,epic by subtask");
             bufferedWriter.newLine();
@@ -67,20 +66,20 @@ public class FileBackedTasksManager
             List<Task> listOfTasks = parseTasksFromCSV(stringFromFile);
             for (Task task : listOfTasks) {
                 switch (task.getTaskType()) {
-                    case TASK -> taskManager.addTask(task);
-                    case EPIC -> taskManager.addEpic((Epic) task);
-                    case SUBTASK -> taskManager.addSubtask((SubTask) task);
+                    case TASK -> fileBackedTasksManager.addTask(task);
+                    case EPIC -> fileBackedTasksManager.addEpic((Epic) task);
+                    case SUBTASK -> fileBackedTasksManager.addSubtask((SubTask) task);
                 }
             }
 
             List<Integer> listOfIDs = parseTaskHistoryFromCSV(stringFromFile);
             for (Integer listOfID : listOfIDs) {
                 if (tasks.containsKey(listOfID)) {
-                    taskManager.getTask(listOfID);
+                    fileBackedTasksManager.getTask(listOfID);
                 } else if (epics.containsKey(listOfID)) {
-                    taskManager.getEpic(listOfID);
+                    fileBackedTasksManager.getEpic(listOfID);
                 } else if (subtasks.containsKey(listOfID)) {
-                    taskManager.getSubtask(listOfID);
+                    fileBackedTasksManager.getSubtask(listOfID);
                 }
             }
         } catch (IOException e) {

@@ -282,7 +282,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         List tasks = taskManager.getPrioritizedTasks();
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals(6, taskManager.getPrioritizedTasks().size(), "Неверное количество задач"),
+                () -> Assertions.assertEquals(6, tasks.size(), "Неверное количество задач"),
                 () -> Assertions.assertEquals(subtaskTimePoint, tasks.get(0), "Не верный порядок задачи"),
                 () -> Assertions.assertEquals(taskTimePoint2, tasks.get(1), "Не верный порядок задачи"),
                 () -> Assertions.assertEquals(epicTimePoint, tasks.get(5), "Не верный порядок задачи")
