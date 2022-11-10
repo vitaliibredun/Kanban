@@ -1,7 +1,7 @@
 package manager;
 
-import Serializers.DurationAdapter;
-import Serializers.LocalDateTimeAdapter;
+import serializers.DurationAdapter;
+import serializers.LocalDateTimeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

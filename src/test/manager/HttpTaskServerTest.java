@@ -5,8 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import constants.Status;
 import http.server.KVTaskClient;
-import http.server.server.HttpTaskServer;
-import http.server.server.KVServer;
+import http.server.HttpTaskServer;
+import http.server.KVServer;
 import org.junit.jupiter.api.*;
 import tasks.Epic;
 import tasks.SubTask;
@@ -40,10 +40,6 @@ public class HttpTaskServerTest {
 
     @AfterEach
     void cleanUp() {
-        httpTaskServer.manager.deleteAllTasks();
-        httpTaskServer.manager.deleteAllEpics();
-        httpTaskServer.manager.deleteAllSubtasks();
-        httpTaskServer.manager.getPrioritizedTasks().clear();
         manager.deleteAllTasks();
         manager.deleteAllEpics();
         manager.deleteAllSubtasks();
