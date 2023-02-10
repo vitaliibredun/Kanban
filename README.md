@@ -30,9 +30,3 @@ To get started with this project, you will need to have the following installed 
 To build and run the project, follow these steps:
 
 * Clone the repository: `git clone https://github.com/vitaliibredun/java-kanban.git`
-
-The application will be available at http://localhost:8080
-
-## API
-
-The tasking manager exposes some of its functionality via an API. It is documented here: 
