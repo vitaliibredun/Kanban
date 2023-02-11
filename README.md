@@ -1,4 +1,4 @@
-# Java-kanban 
+# Kanban 
 
 This is experimantal project builded with core java standart libraries. Backend for application of managing tasks for personal use. 
   
